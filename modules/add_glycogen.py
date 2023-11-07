@@ -1,4 +1,3 @@
-from modules.import_model import import_model
 import cobra
 
 
@@ -236,27 +235,3 @@ def update_prot_glyc(
     })
 
     return model
-
-
-if __name__ == "__main__":
-    new_syn = import_model(
-            '../models_sbml/Synechocystis6803_SBML_COBRA_24_4_17.sbml'
-        )
-    with new_syn:
-        new_syn = add_BM10(new_syn)
-        print(new_syn.reactions.BM0009.build_reaction_string(
-            use_metabolite_names=True
-        ))
-        print(sum(new_syn.reactions.BM0009.metabolites.values()))
-    with new_syn:
-        new_syn = update_prot_glyc(new_syn, 20, 20)
-        print(new_syn.reactions.BM0009.build_reaction_string(
-            use_metabolite_names=True
-        ))
-        print(sum(new_syn.reactions.BM0009.metabolites.values()))
-    with new_syn:
-        new_syn = update_glycogen(new_syn, 98)
-        print(new_syn.reactions.BM0009.build_reaction_string(
-            use_metabolite_names=True
-        ))
-        print(sum(new_syn.reactions.BM0009.metabolites.values()))

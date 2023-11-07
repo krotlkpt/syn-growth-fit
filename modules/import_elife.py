@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import uncertainties
-import matplotlib.pyplot as plt
 
 
 class DataImporter:
@@ -149,28 +148,3 @@ class Import_Theune():
         ])
         # reproduce the calculation for ATP/NADPH as in Theune et al.:
         self.ratio = (self.Y/(1-self.Y) * 4 * 4 / 4.66 + 12 / 4.66) / 2
-
-
-if __name__ == "__main__":
-    zavrel = DataImporter()
-    print(zavrel.get("DW with error"))
-    print(zavrel.get("light cap with error"))
-    print(zavrel.get("light calc"))
-    print(zavrel.get("light calc with error"))
-    print(zavrel.error("light calc"))
-    print(f"At {zavrel.get('light')[5]} nm (gr: {zavrel.get('growth')[5]}):")
-    print("Protein content:", zavrel.get("protein")[5]/zavrel.get("DW")[5])
-    print("Glycogen content:", zavrel.get("glycogen")[5]/zavrel.get("DW")[5])
-
-    fig, ax = plt.subplots()
-    ax.errorbar(
-        zavrel.get("light calc"), zavrel.value("O2 fba"),
-        fmt="ko",
-        xerr=zavrel.error("light calc"),
-        yerr=zavrel.error("O2 fba"),
-        capsize=2,
-        elinewidth=.5
-    )
-    # fig.savefig("/home/hoeper/tempfiles/errorplot.svg")
-    theune = Import_Theune()
-    print(theune.ratio)

@@ -177,17 +177,3 @@ def split_rubisco(model: cobra.Model, ox_percent: float) -> cobra.Model:
     model.add_cons_vars([rubisco_const])
 
     return model
-
-
-if __name__ == "__main__":
-    S6803 = import_model(
-        '../models_sbml/Synechocystis6803_SBML_COBRA_24_4_17.sbml'
-    )
-    print(S6803.objective)
-    print(S6803.reactions.BM0009)
-    print(S6803.reactions.GE0001.bounds)
-    split_rubisco(S6803, 3/97*100)
-    print(S6803.constraints.rubisco)
-    S6803 = import_model('../models_sbml/Synechocystis6803_1.sbml')
-    print(S6803.objective)
-    print(S6803.reactions.R90)
