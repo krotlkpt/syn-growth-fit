@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 class DataImporter:
 
-    def __init__(self, path="zavrel/elife-42508-fig2-data1-v2.xlsx"):
+    def __init__(self, path="data/elife-42508-fig2-data1-v2.xlsx"):
         self.path = path
         self.ALL = pd.read_excel(self.path, usecols="C:J", nrows=236)
         self.DATA = {
