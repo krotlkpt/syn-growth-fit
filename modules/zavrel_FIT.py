@@ -48,7 +48,7 @@ def proteincontent(input: float) -> float:
       extrapolated beyond the range.
     '''
 
-    lights_in = zavrel.get("light")
+    lights_in = zavrel.get("light") + blue_light
     protein_cont = zavrel.get("protein")/zavrel.get("DW")*100
 
     def linear_function(point1, point2, x):
@@ -407,8 +407,8 @@ def plus_blue(input, alpha, alpha2, alpha3=False):
     if alpha3:
         I_star = (I0 := input-27.5) * alpha + alpha2 * (1 + alpha3 * I0) * 27.5
     else:
-        I_star = (input-27.5 + alpha2 * 27.5) * alpha * 3.6
-    return I_star
+        I_star = (input-27.5 + alpha2 * 27.5) * alpha
+    return I_star * 3.6
 
 
 def fit_haldane(input, mu_star, ka, gamma):
