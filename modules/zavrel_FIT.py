@@ -150,7 +150,7 @@ def photodamage_helper(
                     #     m, fitted_glyc(-input1)
                     # )
                     m = update_prot_glyc(
-                        m, proteincontent(-input), fitted_glyc(-input)
+                        m, proteincontent(-input1), fitted_glyc(-input1)
                     )
                 elif add_glyc[1] == 3:
                     update_glycogen(m, 100*(0.0023*-vstar+0.0424))
