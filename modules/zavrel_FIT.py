@@ -161,7 +161,7 @@ def photodamage_helper(
         elif isinstance(rxn_out, list):
             return get_fluxes(m, rxn_in, rxn_out, (-1*vstar, 0))
         elif fva:
-            return get_fva(m, rxn_in, rxn_out, -1*vstar)
+            return get_fva(m, rxn_in, rxn_out, -1*vstar, 1.001)
         else:
             return get_flux(m, rxn_in, rxn_out, -1*vstar)
 
