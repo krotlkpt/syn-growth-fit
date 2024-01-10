@@ -119,24 +119,35 @@ def update_glycogen(model: cobra.Model, percent: float = 3.41) -> cobra.Model:
     except KeyError:
         model = add_BM10(model)
     bof = model.reactions.BM0009
-    glyc_component = model.metabolites.get_by_id("B10_cyt")
+    try:
+        _ = model.metabolites.C00182_cyt
+        bigg = False
+    except AttributeError:
+        _ = model.metabolites.glycogen_c
+        bigg = True
+    if not bigg:
+        glyc_component = model.metabolites.get_by_id("B10_cyt")
+        extra_mets = [
+            "C00002_cyt", "C00001_cyt", "B10_cyt"
+        ]
+    else:
+        glyc_component = model.metabolites.get_by_id("bm_glycogen_c")
+        extra_mets = [
+            "atp_c", "h2o_c", "bm_glycogen_c"
+        ]
     dif = (percent/100 + bof.metabolites[glyc_component]) * -1
     bof.subtract_metabolites({
         met: dif*bof.metabolites[met]/sum(
             [
                 bof.get_coefficient(met)
                 for met in bof.reactants
-                if met.id not in [
-                    "C00002_cyt", "C00001_cyt", "B10_cyt"
-                ]
+                if met.id not in extra_mets
             ]
         )
         for met in bof.reactants
         if met not in [
             model.metabolites.get_by_id(metid)
-            for metid in [
-                "C00002_cyt", "C00001_cyt", "B10_cyt"
-            ]
+            for metid in extra_mets
         ]
     })
     bof.add_metabolites({

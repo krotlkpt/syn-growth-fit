@@ -11,15 +11,17 @@ def import_model(filename):
     '''
     model = cobra.io.read_sbml_model(filename)
     if len(model.reactions.query("R90")) > 0:
-        old = True
+        old, new, latest = (True, False, False)
+    elif len(model.metabolites.query("C00244_cyt")) > 0:
+        old, new, latest = (False, True, False)
     else:
-        old = False
+        old, new, latest = (False, False, True)
 
     # define Biomass and cytochrome respiratroy reactions:
     if old:
         bm_rxn = model.reactions.R90
         # resp_rxns = [mdodel.reactions.get_by_id(X) for X in ["R458", "R459"]]
-        # O2_rxns = [moel.reactions.get_by_id(X) for X in ["R491"]]
+        O2_rxns = [model.reactions.get_by_id(X) for X in ["R491"]]
     else:
         bm_rxn = model.reactions.BM0009
         # resp_rxns = [
@@ -28,29 +30,31 @@ def import_model(filename):
         #     ]
         # ]
         O2_rxns = [model.reactions.get_by_id(X) for X in ["PR0043"]]
-        model.reactions.TR0050.add_metabolites({
-            "C00244_cyt": -1,
-            "C00080_cyt": 1
-        })
+        if new:
+            model.reactions.TR0050.add_metabolites({
+                "C00244_cyt": -1,
+                "C00080_cyt": 1
+            })
 
     bm_rxn.objective_coefficient = 1.0
 
-    # add atp maintenance reaction:
-    atp = cobra.Reaction('R_ATP_maint')
-    atp.name = 'ATP maintenance reaction'
-    atp.subsystem = 'cell maintenance'
-    # atp.lower_bound = 1.3
-    atp.lower_bound = 0
-    atp.upper_bound = 1000
+    if new:
+        # add atp maintenance reaction:
+        atp = cobra.Reaction('R_ATP_maint')
+        atp.name = 'ATP maintenance reaction'
+        atp.subsystem = 'cell maintenance'
+        # atp.lower_bound = 1.3
+        atp.lower_bound = 0
+        atp.upper_bound = 1000
 
-    atp.add_metabolites({
-        model.metabolites.get_by_id('C00002_cyt'): -1.0,
-        model.metabolites.get_by_id('C00001_cyt'): -1.0,
-        model.metabolites.get_by_id('C00008_cyt'): 1.0,
-        model.metabolites.get_by_id('C00009_cyt'): 1.0
-    })
+        atp.add_metabolites({
+            model.metabolites.get_by_id('C00002_cyt'): -1.0,
+            model.metabolites.get_by_id('C00001_cyt'): -1.0,
+            model.metabolites.get_by_id('C00008_cyt'): 1.0,
+            model.metabolites.get_by_id('C00009_cyt'): 1.0
+        })
 
-    model.add_reactions([atp])
+        model.add_reactions([atp])
 
     # define constrain 20% of evolved O2 in respiration
     prod_sum = sum([x.flux_expression for x in O2_rxns])
@@ -63,12 +67,20 @@ def import_model(filename):
     # )
     # model.add_cons_vars(some_flux)
 
-    mehler_like = model.problem.Constraint(
-        model.reactions.PR0033.flux_expression - 0.1 * prod_sum,
-        lb=0,
-        ub=1000,
-        name="mehlerlike"
-    )
+    if new:
+        mehler_like = model.problem.Constraint(
+            model.reactions.PR0033.flux_expression - 0.1 * prod_sum,
+            lb=0,
+            ub=1000,
+            name="mehlerlike"
+        )
+    elif latest:
+        mehler_like = model.problem.Constraint(
+            model.reactions.MEHLER_1.flux_expression - 0.1 * prod_sum,
+            lb=0,
+            ub=1000,
+            name="mehlerlike"
+        )
     model.add_cons_vars(mehler_like)
 
     ps1_superox = model.problem.Constraint(
@@ -89,12 +101,18 @@ def import_model(filename):
     for rxn in model.boundary:
         if 'C' in rxn.check_mass_balance():
             rxn.lower_bound = 0.
-    model.reactions.EX_C00011_ext_b.lower_bound = -1000
+    if new:
+        model.reactions.EX_C00011_ext_b.lower_bound = -1000
+    elif latest:
+        model.reactions.EX_co2_e.lower_bound = -1000
     # make all nitrogen influx 0, open NO3
     for rxn in model.boundary:
         if 'N' in rxn.check_mass_balance():
             rxn.lower_bound = 0.
-    model.reactions.EX_C00244_ext_b.lower_bound = -1000
+    if new:
+        model.reactions.EX_C00244_ext_b.lower_bound = -1000
+    elif latest:
+        model.reactions.EX_no3_e.lower_bound = -1000
 
     return model
 

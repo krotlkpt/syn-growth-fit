@@ -132,7 +132,7 @@ def photodamage_helper(
     input = -plus_blue(-input1, alpha, alpha2, alpha3)
     vstar = -1*input*kl/(-1*input + kl)  # reduced photon usage
     with model as m:
-        atp = m.reactions.get_by_id("R_ATP_maint")
+        atp = m.reactions.get_by_id("ATPM")
         photodamage = model.problem.Constraint(
             damage/100 * input + atp.flux_expression - maint,
             lb=0,
@@ -188,12 +188,12 @@ def pd_fitting(
                 rxn.lower_bound = 0.
 
         model.reactions.get_by_id(
-            "EX_C00244_ext_b"  # nitrate
+            "EX_no3_e"  # nitrate
         ).lower_bound = -1000
         model.reactions.get_by_id(
-            "EX_C00011_ext_b"  # co2
+            "EX_co2_e"  # co2
         ).lower_bound = -1000
-        kl = get_kl(model, pmax)
+        kl = pmax
 
         output = []
         for i1 in input:
@@ -201,7 +201,7 @@ def pd_fitting(
             i = plus_blue(i1, alpha, alpha2, 0)
             vstar = -1*i*kl/(i + kl)
             with model as m:
-                atp = m.reactions.get_by_id("R_ATP_maint")
+                atp = m.reactions.get_by_id("ATPM")
                 atp.upper_bound = 1000
                 photodamage = model.problem.Constraint(
                     kd/-100 * i + atp.flux_expression - maint,
@@ -302,8 +302,8 @@ def dark_resp(
             )
             for a, id in zip([-1, 1, 1], [
                 "PR0043",
-                "EX_C00007_ext_b",
-                "PR0033"
+                "EX_o2_e",
+                "MEHLER_1"
                 # "PR0032",
                 # "PR0034"
             ])
@@ -334,12 +334,12 @@ def pd_fitting_w_resp(
                 rxn.lower_bound = 0.
 
         model.reactions.get_by_id(
-            "EX_C00244_ext_b"  # nitrate
+            "EX_no3_e"  # nitrate
         ).lower_bound = -1000
         model.reactions.get_by_id(
-            "EX_C00011_ext_b"  # co2
+            "EX_co2_e"  # co2
         ).lower_bound = -1000
-        kl = get_kl(model, pmax)
+        kl = pmax  # get_kl(model, pmax)
 
         output = []
         respir = []
@@ -349,7 +349,7 @@ def pd_fitting_w_resp(
             i = plus_blue(i1, alpha, alpha2, 0)
             vstar = -1*i*kl/(i + kl)
             with model as m:
-                atp = m.reactions.get_by_id("R_ATP_maint")
+                atp = m.reactions.get_by_id("ATPM")
                 atp.upper_bound = 1000
                 photodamage = m.problem.Constraint(
                     kd/-100 * i + atp.flux_expression - maint,
@@ -358,7 +358,7 @@ def pd_fitting_w_resp(
                 )
                 resp_rxns = [
                     m.reactions.get_by_id(X) for X in [
-                        "PR0010", "PR0010_2", "PR0011", "PR0011_2"
+                        "CYOOum", "PR0011"
                     ]
                 ]
                 use_sum = sum([x.flux_expression for x in resp_rxns])
