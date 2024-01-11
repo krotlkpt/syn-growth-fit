@@ -165,8 +165,7 @@ def split_rubisco(model: cobra.Model, ox_percent: float) -> cobra.Model:
             "2pglyc_cx"
         )
     m = model.metabolites
-    model.reactions.PP0011.upper_bound = 0
-    rubisCo = cobra.Reaction("rubisCo")
+    rubisCo = cobra.Reaction("RBPC")
     rubisCo.name = "RuBisCO Carboxylase"
     rubisCo.lower_bound = 0
     rubisCo.add_metabolites({
@@ -175,7 +174,7 @@ def split_rubisco(model: cobra.Model, ox_percent: float) -> cobra.Model:
         m.get_by_id(rb15bp_id): -1,
         m.get_by_id(id_3pg): 2
     })
-    rubiscO = cobra.Reaction("rubiscO")
+    rubiscO = cobra.Reaction("RBCh")
     rubiscO.name = "RuBisCO Oxygenase"
     rubiscO.lower_bound = 0
     rubiscO.add_metabolites({
@@ -184,7 +183,12 @@ def split_rubisco(model: cobra.Model, ox_percent: float) -> cobra.Model:
         m.get_by_id(id_3pg): 1,
         m.get_by_id(id_2pglyc): 1
     })
-    model.add_reactions([rubisCo, rubiscO])
+    if len(model.reactions.query("RBPC")) == 0:
+        model.add_reactions([rubisCo, rubiscO])
+        model.reactions.PP0011.upper_bound = 0
+    else:
+        rubisCo = model.reactions.RBPC
+        rubiscO = model.reactions.RBCh
 
     rubisco_const = model.problem.Constraint(
         rubiscO.flux_expression - ox_percent/100 * rubisCo.flux_expression,
