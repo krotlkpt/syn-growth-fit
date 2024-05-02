@@ -110,11 +110,11 @@ def get_kl(model: cobra.Model, pmax: float) -> float:
         ]:
             if con in m1.constraints._dict.keys():
                 m1.remove_cons_vars((con))
-        m1.reactions.get_by_id("EX_E1_ext_b").lower_bound = -1*pmax
+        m1.reactions.get_by_id("EX_photon_e1_e").lower_bound = -1*pmax
         mumax = m1.slim_optimize()  # maximal growth rate mu
         # print(mumax)
         # get the yield (BM per photon):
-        m1.reactions.get_by_id("EX_E1_ext_b").lower_bound = -1
+        m1.reactions.get_by_id("EX_photon_e1_e").lower_bound = -1
         BMyield = m1.slim_optimize()
     kl = mumax/BMyield
     return kl
@@ -297,7 +297,7 @@ def dark_resp(
     with model as m4:
         ofluxes = [
             a*photodamage_helper(
-                m4, "EX_E1_ext_b", id,
+                m4, "EX_photon_e1_e", id,
                 input1, kl, kd, alpha, alpha2, alpha3, add_glyc, maint
             )
             for a, id in zip([-1, 1, 1], [

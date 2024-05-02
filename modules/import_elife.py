@@ -5,34 +5,45 @@ import uncertainties
 
 class DataImporter:
 
-    def __init__(self, path="data/elife-42508-fig2-data1-v2.xlsx"):
+    def __init__(
+        self, path="data/elife-42508-fig2-data1-v2.xlsx", download=True
+    ):
+        self.download = download
         self.path = path
-        self.ALL = pd.read_excel(self.path, usecols="C:J", nrows=236)
-        self.DATA = {
-            "light": self.ALL.iloc[0].T.to_numpy(),
-            "growth": self.ALL.iloc[12].T.to_numpy(),
-            "growth error": self.ALL.iloc[13].T.to_numpy(),
-            "DW": self.ALL.iloc[25].T.to_numpy(),
-            "DW error": self.ALL.iloc[26].T.to_numpy(),
-            "light cap": self.ALL.iloc[64].T.to_numpy(),
-            "light cap error": self.ALL.iloc[65].T.to_numpy(),
-            "O2": self.ALL.iloc[77].T.to_numpy(),
-            "O2 error": self.ALL.iloc[78].T.to_numpy(),
-            "CO2": self.ALL.iloc[90].T.to_numpy(),
-            "CO2 error": self.ALL.iloc[91].T.to_numpy(),
-            "dark resp": self.ALL.iloc[103].T.to_numpy(),
-            "dark resp error": self.ALL.iloc[104].T.to_numpy(),
-            "chl": self.ALL.iloc[142].T.to_numpy(),
-            "chl error": self.ALL.iloc[143].T.to_numpy(),
-            "glycogen": self.ALL.iloc[194].T.to_numpy(),
-            "glycogen error": self.ALL.iloc[195].T.to_numpy(),
-            "protein": self.ALL.iloc[207].T.to_numpy(),
-            "protein error": self.ALL.iloc[208].T.to_numpy(),
-            "carbon": self.ALL.iloc[116].T.to_numpy(),
-            "carbon error": self.ALL.iloc[117].T.to_numpy(),
-            "nitrogen": self.ALL.iloc[129].T.to_numpy(),
-            "nitrogen error": self.ALL.iloc[130].T.to_numpy()
-        }
+        if self.download:
+            self.ALL = pd.read_excel(self.path, usecols="C:J", nrows=236)
+            self.DATA = {
+                "light": self.ALL.iloc[0].T.to_numpy(),
+                "growth": self.ALL.iloc[12].T.to_numpy(),
+                "growth error": self.ALL.iloc[13].T.to_numpy(),
+                "DW": self.ALL.iloc[25].T.to_numpy(),
+                "DW error": self.ALL.iloc[26].T.to_numpy(),
+                "light cap": self.ALL.iloc[64].T.to_numpy(),
+                "light cap error": self.ALL.iloc[65].T.to_numpy(),
+                "O2": self.ALL.iloc[77].T.to_numpy(),
+                "O2 error": self.ALL.iloc[78].T.to_numpy(),
+                "CO2": self.ALL.iloc[90].T.to_numpy(),
+                "CO2 error": self.ALL.iloc[91].T.to_numpy(),
+                "dark resp": self.ALL.iloc[103].T.to_numpy(),
+                "dark resp error": self.ALL.iloc[104].T.to_numpy(),
+                "chl": self.ALL.iloc[142].T.to_numpy(),
+                "chl error": self.ALL.iloc[143].T.to_numpy(),
+                "glycogen": self.ALL.iloc[194].T.to_numpy(),
+                "glycogen error": self.ALL.iloc[195].T.to_numpy(),
+                "protein": self.ALL.iloc[207].T.to_numpy(),
+                "protein error": self.ALL.iloc[208].T.to_numpy(),
+                "carbon": self.ALL.iloc[116].T.to_numpy(),
+                "carbon error": self.ALL.iloc[117].T.to_numpy(),
+                "nitrogen": self.ALL.iloc[129].T.to_numpy(),
+                "nitrogen error": self.ALL.iloc[130].T.to_numpy()
+            }
+        else:
+            with open("data/zavrel_data.csv", "r") as f:
+                self.DATA = {
+                    (line := li.strip().split(","))[0]:
+                        np.array([float(i) for i in line[1:]])
+                    for li in f.readlines()
+                }
 
         self.DATA["light error"] = np.zeros(len(self.DATA["light"]))
 
@@ -148,3 +159,8 @@ class Import_Theune():
         ])
         # reproduce the calculation for ATP/NADPH as in Theune et al.:
         self.ratio = (self.Y/(1-self.Y) * 4 * 4 / 4.66 + 12 / 4.66) / 2
+
+
+if __name__ == "__main__":
+    zavrel = DataImporter("../data/elife-42508-fig2-data1-v2.xlsx")
+    print(zavrel.DATA)

@@ -37,7 +37,7 @@ class Sensitivity_Calculator:
         with self.model:
             self.defmus = photodamage_helper(
                 self.model,
-                'EX_E1_ext_b',
+                'EX_photon_e1_e',
                 "BM0009",
                 -(point + blue_light),
                 self.kl,
@@ -89,7 +89,7 @@ class Sensitivity_Calculator:
                                 proteincontent(point + blue_light),
                                 fitted_glyc(point + blue_light)
                             ),
-                            'EX_E1_ext_b',
+                            'EX_photon_e1_e',
                             "BM0009",
                             -(self.ub_params_list[i][-1] + blue_light),
                             self.ub_params_list[i][0],
@@ -107,7 +107,7 @@ class Sensitivity_Calculator:
                                 proteincontent(point + blue_light),
                                 fitted_glyc(point + blue_light)
                             ),
-                            'EX_E1_ext_b',
+                            'EX_photon_e1_e',
                             "BM0009",
                             -(self.lb_params_list[i][-1] + blue_light),
                             self.lb_params_list[i][0],
