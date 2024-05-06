@@ -10,7 +10,7 @@ from modules.fit_glycogen_funcs import fit as fit_glyc
 
 plt.rc('svg', hashsalt="abc")     # hashsalt for reproducable svg
 
-zavrel = DataImporter()
+zavrel = DataImporter(download=False)
 
 blue_light = 27.5
 
