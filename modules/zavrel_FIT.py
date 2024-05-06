@@ -1,3 +1,4 @@
+from builtins import FileNotFoundError
 from typing import Callable, Union
 from modules.FBA_S6803 import growth, get_flux, get_fluxes, get_fva
 from modules.import_elife import DataImporter
@@ -10,7 +11,10 @@ from modules.fit_glycogen_funcs import fit as fit_glyc
 
 plt.rc('svg', hashsalt="abc")     # hashsalt for reproducable svg
 
-zavrel = DataImporter()
+try:
+    zavrel = DataImporter()
+except FileNotFoundError:
+    zavrel = DataImporter(download=False)
 
 blue_light = 27.5
 
